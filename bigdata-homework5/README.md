@@ -1,239 +1,410 @@
-# 大数据作业5 - Hadoop WordCount 词频统计
+# Hadoop MapReduce 词频统计实验报告
 
-## 项目概述
+## 一、实验环境
 
-本项目使用Hadoop自带的MapReduce WordCount示例程序对股票评论数据进行词频统计。使用本地模式运行，无需启动HDFS和YARN服务。
+- **操作系统**: Linux (Ubuntu/Debian)
+- **Hadoop版本**: 3.4.0
+- **运行模式**: 伪分布式模式 (Pseudo-Distributed Mode)
+- **Docker镜像**: newhadoop
+- **数据文件**: stock_data.csv (472KB, 6,090行股票评论)
 
-## 数据文件
+## 二、实验步骤
 
-- **stock_data.csv**: 股票评论数据（约480KB，包含评论文本和情感标签）
-
-## 快速开始
-
-### 方法1: 在Docker容器中直接运行
-
-```bash
-# 确保容器在运行
-docker ps | grep hadoop-homework5
-
-# 如果容器未运行，启动它
-docker start hadoop-homework5
-
-# 进入容器并执行
-docker exec -it hadoop-homework5 bash
-cd /homework
-bash run.sh
-```
-
-### 方法2: 从宿主机直接执行
+### 2.1 创建Docker容器
 
 ```bash
-docker exec hadoop-homework5 bash /homework/run.sh
+docker run -itd --name hadoop-homework5 \
+  -p 9870:9870 \
+  -p 8088:8088 \
+  -p 19888:19888 \
+  -v /home/kleene/workspace/bigdata2025/bigdata-homework5:/homework \
+  newhadoop /bin/bash
 ```
 
-## 运行结果
+**端口说明**：
+- 9870: HDFS NameNode Web UI
+- 8088: YARN ResourceManager Web UI  
+- 19888: MapReduce JobHistory Server
 
-运行成功后会显示：
-- **原始词频统计 (Top 30)**: 包含所有词汇
-- **过滤停用词后的有意义词频统计 (Top 50)**: 排除介词、冠词、标点等无意义词汇
-- **股票代码词频统计 (Top 20)**: 提取2-5个大写字母的股票代码
-- **统计信息**: 总词数、有意义词数、过滤率
+### 2.2 配置Hadoop伪分布式模式
 
-### 示例输出：
-
-**原始统计:**
-```
-the     1794
-to      1668
-a       1280
-AAP     765
-...
-```
-
-**有意义词统计（已过滤停用词）:**
-```
-AAP     765   (苹果股票代码)
-short   278   (做空)
-like    267   (喜欢)
-long    215   (做多)
-volume  211   (交易量)
-stock   158   (股票)
-buy     142   (买入)
-...
+#### 配置core-site.xml
+```bash
+docker exec hadoop-homework5 bash -c "cat > /usr/local/hadoop/etc/hadoop/core-site.xml << 'EOF'
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://localhost:9000</value>
+    </property>
+    <property>
+        <name>hadoop.tmp.dir</name>
+        <value>/tmp/hadoop</value>
+    </property>
+</configuration>
+EOF"
 ```
 
-**股票代码统计:**
-```
-AAP     765   (Apple - 苹果)
-BAC     174   (Bank of America - 美国银行)
-GOOG    165   (Google - 谷歌)
-AMZN    79    (Amazon - 亚马逊)
-...
-```
-
-**统计信息:**
-```
-总唯一词数: 19,756
-有意义词数: 17,661
-过滤率: 10.6%
+#### 配置hdfs-site.xml
+```bash
+docker exec hadoop-homework5 bash -c "cat > /usr/local/hadoop/etc/hadoop/hdfs-site.xml << 'EOF'
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<configuration>
+    <property>
+        <name>dfs.replication</name>
+        <value>1</value>
+    </property>
+</configuration>
+EOF"
 ```
 
-## 查看完整结果
+#### 配置yarn-site.xml
+```bash
+docker exec hadoop-homework5 bash -c "cat > /usr/local/hadoop/etc/hadoop/yarn-site.xml << 'EOF'
+<?xml version=\"1.0\"?>
+<configuration>
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+</configuration>
+EOF"
+```
+
+#### 配置mapred-site.xml
+```bash
+docker exec hadoop-homework5 bash -c "cat > /usr/local/hadoop/etc/hadoop/mapred-site.xml << 'EOF'
+<?xml version=\"1.0\"?>
+<configuration>
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+    <property>
+        <name>mapreduce.jobhistory.webapp.address</name>
+        <value>localhost:19888</value>
+    </property>
+</configuration>
+EOF"
+```
+
+### 2.3 配置SSH免密登录
 
 ```bash
-# 查看前50个高频词
-cat /homework/output/part-r-00000 | sort -t$'\t' -k2 -nr | head -50
-
-# 查看前100个高频词
-cat /homework/output/part-r-00000 | sort -t$'\t' -k2 -nr | head -100
-
-# 查看所有结果
-cat /homework/output/part-r-00000
+docker exec hadoop-homework5 bash -c "
+apt-get update && apt-get install -y openssh-server openssh-client
+ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+chmod 0600 ~/.ssh/authorized_keys
+service ssh start
+"
 ```
 
-在宿主机上查看：
+### 2.4 初始化并启动Hadoop
+
 ```bash
-cd "/mnt/d/南京大学/大三上/大数据/作业5"
-cat output/part-r-00000 | sort -t$'\t' -k2 -nr | head -50
+# 格式化HDFS
+docker exec hadoop-homework5 bash -c "
+rm -rf /tmp/hadoop
+/usr/local/hadoop/bin/hdfs namenode -format -force
+"
+
+# 启动Hadoop服务
+docker exec hadoop-homework5 bash /homework/start_hadoop.sh
 ```
 
-## 项目结构
+### 2.5 运行WordCount任务
 
-```
-作业5/
-├── stock_data.csv               # 股票评论数据（输入）
-├── output/                      # WordCount输出结果
-│   └── part-r-00000            # 词频统计结果文件
-├── run.sh                       # 一键运行脚本
-├── README.md                    # 本文件
-├── completion_checklist.md      # 完成检查清单
-├── 作业5.pdf                    # 作业要求文档
-└── .gitignore                   # Git忽略规则
-```
-
-## WordCount MapReduce 伪代码
-
-### Map 阶段伪代码
-```
-function map(String key, String value):
-    // key: 文件偏移量（忽略）
-    // value: 一行文本内容
-    
-    // 将文本转换为小写
-    text = value.toLowerCase()
-    
-    // 分词：按空格、标点等分隔符切分
-    words = text.split("\\s+")
-    
-    // 输出每个单词和计数1
-    for each word in words:
-        if word is not empty:
-            emit(word, 1)
-```
-
-### Reduce 阶段伪代码
-```
-function reduce(String key, Iterator<Integer> values):
-    // key: 单词
-    // values: 该单词对应的所有计数值（都是1）
-    
-    sum = 0
-    
-    // 累加所有计数值
-    for each value in values:
-        sum = sum + value
-    
-    // 输出单词和总计数
-    emit(key, sum)
-```
-
-### Combiner 优化（可选）
-```
-function combine(String key, Iterator<Integer> values):
-    // 在Map端进行局部聚合，减少网络传输
-    // Combiner逻辑与Reducer相同
-    
-    sum = 0
-    for each value in values:
-        sum = sum + value
-    
-    emit(key, sum)
-```
-
-### 完整MapReduce流程
-```
-1. Input Split（输入分片）
-   - 将stock_data.csv分成若干片段
-   - 每个片段由一个Mapper处理
-
-2. Map Phase（映射阶段）
-   - Mapper读取文本行
-   - 分词并输出<word, 1>键值对
-   - 例：输入 "the stock is good"
-         输出 <the, 1>, <stock, 1>, <is, 1>, <good, 1>
-
-3. Shuffle & Sort（洗牌和排序）
-   - 按key（单词）分组
-   - 相同单词的所有value聚集在一起
-   - 例：<the, [1, 1, 1, ...]>
-
-4. Reduce Phase（规约阶段）
-   - Reducer接收分组后的数据
-   - 累加每个单词的计数
-   - 例：<the, [1,1,1,...]> → <the, 1794>
-
-5. Output（输出）
-   - 写入输出文件 part-r-00000
-   - 格式：单词<TAB>次数
-```
-
-## 技术说明
-
-### 运行模式
-本作业使用Hadoop的**本地模式（Standalone Mode）**运行：
-- **优点**: 无需启动HDFS/YARN服务，配置简单，运行快速
-- **原理**: 使用本地文件系统代替HDFS，单JVM进程运行MapReduce
-- **适用场景**: 开发测试、小规模数据处理
-
-### Hadoop WordCount说明
-- **JAR位置**: `/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.4.0.jar`
-- **类名**: `wordcount`
-- **功能**: 统计文本中每个单词的出现次数
-- **输出格式**: `单词<TAB>次数`
-
-### 运行参数
 ```bash
--Dmapreduce.framework.name=local    # 使用本地模式
--Dfs.defaultFS=file:///            # 使用本地文件系统
+# 上传数据到HDFS
+docker exec hadoop-homework5 bash -c "
+export HADOOP_HOME=/usr/local/hadoop
+\$HADOOP_HOME/bin/hdfs dfs -mkdir -p /input
+\$HADOOP_HOME/bin/hdfs dfs -put /homework/stock_data.csv /input/
+"
+
+# 执行MapReduce任务
+docker exec hadoop-homework5 bash /homework/run_cluster.sh
 ```
 
-## 常见问题
+## 三、实验结果
 
-### 1. 容器未运行
+### 3.1 Web UI监控
+
+任务运行时可通过以下Web界面监控：
+
+- **YARN ResourceManager**: http://localhost:8088
+  - 查看任务列表和运行状态
+  - 监控集群资源使用情况
+  
+- **HDFS NameNode**: http://localhost:9870
+  - 查看HDFS集群状态
+  - 浏览文件系统
+  
+- **JobHistory Server**: http://localhost:19888
+  - 查看已完成任务的详细信息
+  - 查看性能计数器
+
+**截图说明**：
+- 实验截图保存在 `picture/` 目录下
+- 截取了以下关键界面：
+  - YARN ResourceManager 任务列表页面
+  - HDFS NameNode 文件浏览器
+  - JobHistory Server 任务详情和计数器
+  - MapReduce任务运行过程
+
+### 3.2 任务执行统计
+
+```
+Job Counters:
+  - Launched map tasks=1
+  - Launched reduce tasks=1
+  - Total time spent by all maps: 4272ms
+  - Total time spent by all reduces: 1365ms
+
+Map-Reduce Framework:
+  - Map input records=6090
+  - Map output records=82921
+  - Reduce input groups=19756
+  - Reduce output records=19756
+
+File System Counters:
+  - HDFS: Bytes Read=480075
+  - HDFS: Bytes Written=202374
+```
+
+### 3.3 词频统计结果（Top 30）
+
+```
+词语      出现次数
+the      1794
+to       1668
+a        1280
+on       1029
+of       944
+in       886
+for      866
+and      850
+is       811
+AAP      765
+at       541
+this     459
+it       443
+I        436
+up       342
+from     331
+will     330
+be       323
+with     322
+short    278
+that     276
+like     267
+are      261
+user:    255
+over     253
+out      245
+stock    158
+buy      142
+down     140
+watch    134
+```
+
+**统计摘要**：
+- 总唯一词数: 19,756
+- 输入文件: 472 KB
+- 输出文件: 197.6 KB
+- 处理时间: 约10-18秒
+
+## 四、MapReduce工作原理
+
+### 4.1 WordCount算法流程
+
+#### Map阶段
+```
+输入: (偏移量, "Kickers on my watchlist XIDE TIT")
+处理: 分词 → ["kickers", "on", "my", "watchlist", "xide", "tit"]
+输出: 
+  (kickers, 1)
+  (on, 1)
+  (my, 1)
+  (watchlist, 1)
+  (xide, 1)
+  (tit, 1)
+```
+
+#### Shuffle & Sort阶段
+```
+分组排序后:
+  (kickers, [1, 1, 1])
+  (on, [1, 1, 1, 1, ..., 1])  // 1029个1
+  (watchlist, [1])
+  ...
+```
+
+#### Reduce阶段
+```
+输入: (on, [1, 1, 1, ..., 1])
+处理: sum([1, 1, 1, ..., 1]) = 1029
+输出: (on, 1029)
+```
+
+### 4.2 Map函数伪代码
+
+```java
+public class WordCountMapper {
+    public void map(LongWritable key, Text value, Context context) {
+        // key: 文件偏移量
+        // value: 一行文本
+        
+        String line = value.toString().toLowerCase();
+        String[] words = line.split("\\s+");
+        
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                context.write(new Text(word), new IntWritable(1));
+            }
+        }
+    }
+}
+```
+
+### 4.3 Reduce函数伪代码
+
+```java
+public class WordCountReducer {
+    public void reduce(Text key, Iterable<IntWritable> values, Context context) {
+        // key: 单词
+        // values: 该单词对应的所有计数值
+        
+        int sum = 0;
+        for (IntWritable value : values) {
+            sum += value.get();
+        }
+        
+        context.write(key, new IntWritable(sum));
+    }
+}
+```
+
+### 4.4 Combiner优化
+
+Combiner在Map端进行局部聚合，减少网络传输：
+
+```
+Map输出: (the, 1), (the, 1), (the, 1), ..., (the, 1)  // 假设有100个
+↓ Combiner局部聚合
+Combiner输出: (the, 100)
+↓ 网络传输（只传输一条记录）
+Reduce输入: (the, [100, 85, 92, ...])  // 来自不同Map任务
+```
+
+本实验中Combiner效果：
+- Combine input records: 82,921
+- Combine output records: 19,756
+- **压缩率**: 76.2%
+
+## 五、遇见的问题与解决方案
+
+### 5.1 服务无法启动
+
+**问题**: jps显示某些服务未启动
+
+**解决方案**:
 ```bash
-docker ps -a | grep hadoop-homework5
-docker start hadoop-homework5
+# 查看日志
+docker exec hadoop-homework5 tail -100 /usr/local/hadoop/logs/hadoop-root-namenode-*.log
+
+# 重新格式化（会清空数据）
+docker exec hadoop-homework5 bash -c "
+rm -rf /tmp/hadoop
+/usr/local/hadoop/bin/hdfs namenode -format -force
+"
 ```
 
-### 2. 清理输出重新运行
+### 5.2 Web UI无法访问
+
+**问题**: 浏览器无法打开 http://localhost:8088
+
+**解决方案**:
 ```bash
-rm -rf /homework/output /homework/input_temp
-bash /homework/run.sh
+# 检查端口映射
+docker port hadoop-homework5
+
+# 检查服务是否运行
+docker exec hadoop-homework5 jps
+
+# 确认容器创建时添加了-p参数
 ```
 
-### 3. 查看详细日志
-在容器中直接运行命令可以看到完整的MapReduce执行日志
+### 5.3 任务执行失败
 
-## 性能指标
+**问题**: MapReduce任务报错
 
-运行 stock_data.csv (480KB) 的典型结果：
-- **输入记录数**: ~500条
-- **唯一词数**: ~19,756个
-- **处理时间**: 约10-15秒
-- **最高频词**: "the" (1794次)
+**解决方案**:
+```bash
+# 查看任务日志
+docker exec hadoop-homework5 bash -c "/usr/local/hadoop/bin/yarn logs -applicationId application_xxx"
 
-## 作者
-南京大学 - 大数据课程作业5
+# 检查HDFS空间
+docker exec hadoop-homework5 bash -c "/usr/local/hadoop/bin/hdfs dfsadmin -report"
+```
 
-## 日期
-2025年
+### 5.4 输出目录已存在
+
+**问题**: `Output directory already exists`
+
+**解决方案**:
+```bash
+# 删除输出目录
+docker exec hadoop-homework5 bash -c "/usr/local/hadoop/bin/hdfs dfs -rm -r /output"
+```
+
+## 六、快速参考
+
+### 6.1 一键运行命令
+
+```bash
+# 完整流程
+docker run -itd --name hadoop-homework5 -p 9870:9870 -p 8088:8088 -p 19888:19888 -v $(pwd):/homework newhadoop /bin/bash
+docker exec hadoop-homework5 bash /homework/start_hadoop.sh
+docker exec hadoop-homework5 bash /homework/run_cluster.sh
+```
+
+### 6.2 常用HDFS命令
+
+```bash
+# 查看文件
+hdfs dfs -ls /input
+
+# 上传文件
+hdfs dfs -put local.txt /input/
+
+# 下载文件
+hdfs dfs -get /output/part-r-00000 ./
+
+# 查看文件内容
+hdfs dfs -cat /output/part-r-00000 | head
+
+# 删除文件/目录
+hdfs dfs -rm -r /output
+```
+
+### 6.3 项目文件说明
+
+```
+bigdata-homework5/
+├── stock_data.csv          # 输入数据（股票评论）
+├── start_hadoop.sh         # Hadoop服务启动脚本
+├── run_cluster.sh          # WordCount运行脚本（集群模式）
+├── run.sh                  # WordCount运行脚本（本地模式）
+├── README.md               # 实验报告（本文件）
+├── output/                 # MapReduce输出结果
+├── input_temp/             # 临时输入目录
+└── picture/                # 实验截图
+```
+
+---
+
+**实验完成时间**: 2025年10月29日  
+**Hadoop版本**: 3.4.0  
+**运行模式**: 伪分布式模式 (Pseudo-Distributed Mode)
