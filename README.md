@@ -1,6 +1,6 @@
 # 大数据课程实验 2025
 
-本仓库包含大数据课程的两个实验项目。
+本仓库包含大数据课程的三个实验项目。
 
 ## 📚 项目列表
 
@@ -18,21 +18,36 @@
   - 数据可视化与商业洞察
   - 完整实验报告（752行）
 
+### 3. [bigdata-project3](./bigdata-project3/)
+- **实验名称**: 基于Hive的优惠券使用数据分析
+- **完成状态**: ✅ 已完成
+- **主要内容**:
+  - 4个Hive数据分析任务
+  - 处理210万+条优惠券数据
+  - Docker Compose环境（Hive 2.3.2 + Hadoop 2.7.4）
+  - 11张实验截图
+  - 详细问题解决方案文档
+
 ## 🔧 技术栈
 
-- Hadoop 3.4.0
+- Hadoop 3.4.0 / 2.7.4
+- Hive 2.3.2
 - Python 3.x
-- Docker
+- Docker / Docker Compose
+- PostgreSQL (Hive Metastore)
 - matplotlib
 - HDFS
 - MapReduce
+- HiveQL
 
 ## 📊 实验成果
 
 - ✅ HDFS文件系统操作熟练掌握
 - ✅ MapReduce分布式计算框架应用
+- ✅ Hive数据仓库查询与分析
 - ✅ 大数据分析与可视化实践
 - ✅ 商业数据洞察提取
+- ✅ Docker容器化环境部署
 
 ## 📝 文档
 
