@@ -186,6 +186,6 @@ bigdata-project2/
 
 ---
 
-**作者**: GitHub Copilot + User  
+**作者**: kleene  
 **技术栈**: Hadoop 3.4.0 | Python 3 | Docker | matplotlib  
 **实验类型**: 大数据MapReduce实验
