@@ -146,17 +146,20 @@ def main():
     print("Top 5 Predictions:")
     predictions.select("User_id", "Coupon_id", "Date_received", "probability", "prediction").show(5)
 
-    # Persist predictions for downstream analysis (cast probability vector to string for CSV compatibility)
+    # Extract positive probability for submission
+    # Probability vector is [prob_neg, prob_pos]
+    get_pos_prob = udf(lambda v: float(v[1]), FloatType())
+
+    # Persist predictions for downstream analysis
     predictions.select(
         col("User_id"),
         col("Coupon_id"),
         col("Date_received"),
-        col("probability").cast("string").alias("probability"),
-        col("prediction")
+        get_pos_prob(col("probability")).alias("Probability")
     ).coalesce(1) \
      .write \
      .mode("overwrite") \
-     .option("header", True) \
+     .option("header", False) \
      .csv(predictions_output)
     
     spark.stop()

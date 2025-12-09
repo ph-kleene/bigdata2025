@@ -97,7 +97,7 @@ bigdata-project4/
         *   **距离**：将缺失值填充为 11（大于最大距离 10），保持距离的序数含义，避免 -1 带来的误导。
         *   **时间**：提取“周几”和“发薪周期”（上/中/下旬）特征，捕捉消费习惯。
     *   **模型**：使用逻辑回归（Logistic Regression），适合稀疏特征且具有良好的可解释性。
-*   **输出**：`output/task3/predictions/`。
+*   **输出**：`output/task3/predictions/`（格式符合 `sample_submission.csv`，无表头，包含 `User_id,Coupon_id,Date_received,Probability`）。
 
 ## 结果展示
 
