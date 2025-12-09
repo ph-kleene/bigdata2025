@@ -103,7 +103,7 @@ bigdata-project4/
 * **目标**：预测用户领取优惠券后 15 天内是否核销（天池 O2O 二分类）。
 * **模型**：逻辑回归（训练快、可解释、适合稀疏特征）。
 * **特征工程**：
-  * 折扣率 `discount_rate_val`（"150:20" → $1-20/150$）、满减门槛 `discount_man`、折扣类型 `discount_type` 捕捉促销强度与门槛。
+  * 折扣率 `discount_rate_val`（"150:20" → `1-20/150`）、满减门槛 `discount_man`、折扣类型 `discount_type` 捕捉促销强度与门槛。
   * 距离缺失填充 11（大于最大距离 10）保持序数意义，避免 -1 误导模型。
   * 时间特征：`day_of_week` + `salary_cycle`（1-5/15-20/25-31/其他）建模周末与发薪效应。
 * **输出**：预测结果写入 `output/task3/predictions/`，`probability` 列已转字符串以便 CSV 保存；Top5 结果用于报告截图。
@@ -115,6 +115,7 @@ bigdata-project4/
 输出目录：`output/task1/coupon_counts/`（优惠券使用次数）、`output/task1/online_consumption_table/`（商家三类计数）。
 
 **1. 优惠券发放数量统计 (Top 10)**
+
 ![Task 1 Coupon Counts Top 10](pictures/task1_1_coupon_top10.png)
 
 ```text
@@ -132,7 +133,9 @@ fixed 11736
 说明：“fixed” 表示限时低价活动，优惠券无独立 ID。
 
 **2. 商家优惠券使用情况 (Top 10)** — 来源表名保持为 `online_consumption_table`
+
 ![Task 1 Merchant Stats](pictures/task1_2_merchant_stats.png)
+
 格式: `<Merchant_id> <负样本> <普通消费> <正样本>`
 
 ```text
@@ -153,6 +156,7 @@ fixed 11736
 输出目录：`output/task2/coupon_time_dist/`（上/中/下旬概率）、`output/task2/merchant_pos_ratio/`（正样本比例 Top10）。
 
 **1. 优惠券使用时间分布统计 (Top 10)**
+
 ![Task 2 Coupon Time Distribution](pictures/task2_1_coupon_time_dist.png)
 
 ```text
@@ -173,6 +177,7 @@ fixed 11736
 ```
 
 **2. 商家正样本比例统计 (Top 10)**
+
 ![Task 2 Merchant Positive Ratio](pictures/task2_2_merchant_pos_ratio.png)
 
 ```text
@@ -197,6 +202,7 @@ fixed 11736
 输出目录：`output/task3/predictions/`（`probability` 已转为字符串便于 CSV 保存）。
 
 **逻辑回归预测结果 (Top 5)**
+
 ![Task 3 Prediction Results](pictures/task3_prediction_results.png)
 
 ```text
