@@ -34,3 +34,10 @@ Thumbs.db
 
 # Hadoop
 hadoop-*/
+
+# Spark/Hadoop generated files
+*.crc
+_SUCCESS
+part-*
+.part-*
+
