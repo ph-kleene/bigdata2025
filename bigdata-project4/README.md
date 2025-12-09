@@ -103,14 +103,17 @@ bigdata-project4/
 
 ### 1. 优惠券与商家统计 (RDD)
 ![Task 1 Coupon Counts](pictures/task1_1_coupon_top10.png)
+
 *(图：优惠券发放数量 Top 10)*
 
 ### 2. 时间分布与正样本比例 (SQL)
 ![Task 2 Time Distribution](pictures/task2_1_coupon_time_dist.png)
+
 *(图：优惠券使用时间分布)*
 
 ### 3. 预测结果 (MLlib)
 ![Task 3 Prediction](pictures/task3_prediction_results.png)
+
 *(图：逻辑回归预测概率)*
 
 ## 实验环境
