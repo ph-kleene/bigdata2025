@@ -31,12 +31,12 @@ https://tianchi.aliyun.com/competition/entrance/231593/information
 
 | 列名 | 含义 | 示例 |
 | :--- | :--- | :--- |
-| User_id | 用户标识符 | 2166529 |
-| Merchant_id | 商家标识符 | 7113 |
-| Coupon_id | 优惠券标识符[1] | 6928 |
+| User_id | 用户标识符 | `<USER_ID>` |
+| Merchant_id | 商家标识符 | `<MERCHANT_ID>` |
+| Coupon_id | 优惠券标识符[1] | `<COUPON_ID>` |
 | Discount_rate | 折扣率[2] | 200:20:00 |
 | Distance | User 与 Merchant 距离[3] | 5 |
-| Date_received | 优惠券领取日期 | 20160727 |
+| Date_received | 优惠券领取日期 | `YYYYMMDD` |
 | Date | 优惠券使用日期[4] | NULL |
 | Action | 0 点击，1 购买，2 领取优惠券 | 2 |
 

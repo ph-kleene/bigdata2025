@@ -52,7 +52,7 @@ bigdata-project4/
 │   │   ├── ccf_offline_stage1_test_revised.csv
 │   │   └── ccf_online_stage1_train.csv
 │   └── processed/             # 预处理/特征工程中间结果（可选）
-├── output/                    # 任务输出按 taskN 分类
+├── output/                    # 公开 RDD/SQL 汇总；逐用户预测仅本地生成
 │   ├── task1/
 │   │   ├── coupon_counts/            # 任务1.1 优惠券使用次数
 │   │   └── online_consumption_table/ # 任务1.2 商家优惠券使用表
@@ -60,7 +60,7 @@ bigdata-project4/
 │   │   ├── coupon_time_dist/         # 任务2.1 优惠券时间分布
 │   │   └── merchant_pos_ratio/       # 任务2.2 商家正样本比例
 │   └── task3/
-│       └── predictions/              # 任务3 预测结果
+│       └── README.md                 # 本地预测输出说明
 ├── pictures/                  # 实验截图与可视化
 ├── src/
 │   ├── task1_rdd.py           # RDD 统计
@@ -112,9 +112,9 @@ bigdata-project4/
 *(图：优惠券使用时间分布)*
 
 ### 3. 预测结果 (MLlib)
-![Task 3 Prediction](pictures/task3_prediction_results.png)
+> 逐用户预测及含用户标识、领券日期的截图仅留存本地，公开版保留模型代码与输出格式。
 
-*(图：逻辑回归预测概率)*
+预测结果写入本地 `output/task3/predictions/`，该目录已列入 `.gitignore`。
 
 ## 实验环境
 

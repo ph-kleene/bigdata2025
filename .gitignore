@@ -11,10 +11,16 @@ ENV/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Large data files
-*.csv
+# Raw datasets and local feature data
+stock_data.csv
+ccf_offline_stage1_train.csv
+ccf_online_stage1_train.csv
+ccf_offline_stage1_test_revised.csv
+sample_submission.csv
+/bigdata-project3/dataset/
+/bigdata-project4/data/raw/
+/bigdata-project4/data/processed/
 *.zip
-dataset/
 *.dat
 
 # Temporary files
@@ -38,6 +44,23 @@ hadoop-*/
 # Spark/Hadoop generated files
 *.crc
 _SUCCESS
-part-*
-.part-*
 
+# Per-user predictions are local only; aggregate outputs remain public
+/bigdata-project4/output/task3/predictions/
+/bigdata-project4/output/task3/submission.csv
+
+# Legacy private exports and screenshots (kept locally)
+/bigdata-project2/*-实验2.pdf
+/bigdata-homework5/picture/运行成功截图.png
+/bigdata-project3/pictures/task1_offline_count.png
+/bigdata-project3/pictures/task1_offline_limit5.png
+/bigdata-project3/pictures/task1_online_count.png
+/bigdata-project3/pictures/task1_online_limit5.png
+/bigdata-project3/pictures/task2_1_behavior_count.png
+/bigdata-project3/pictures/task2_2_merchant_coupon.png
+/bigdata-project3/pictures/task3_1_merchant_distance.png
+/bigdata-project3/pictures/task3_2_positive_ratio.png
+/bigdata-project3/pictures/task4_1_coupon_time.png
+/bigdata-project3/pictures/task4_2_discount_rate_1.png
+/bigdata-project3/pictures/task4_2_discount_rate_2.png
+/bigdata-project4/pictures/task3_prediction_results.png

@@ -10,8 +10,8 @@
 | --- | --- | --- | --- |
 | Hadoop / HDFS / YARN | 股票评论 WordCount；数据上传、作业执行与 Web UI 监控 | [模块说明](bigdata-homework5/README.md)、[服务启动](bigdata-homework5/start_hadoop.sh)、[WordCount 脚本](bigdata-homework5/run_cluster.sh) | [实验报告与计数器](bigdata-homework5/README.md)、[运行截图](bigdata-homework5/picture/) |
 | MapReduce | 商家消费分类、去重顾客距离、平均核销间隔、折扣与用户活跃度分析 | [模块说明](bigdata-project2/README.md)、[Mapper / Reducer](bigdata-project2/src/) | [实验报告](bigdata-project2/实验报告.md)、[结果汇总](bigdata-project2/RESULTS_SUMMARY.md)、[图表](bigdata-project2/output/) |
-| Hive | 数据建表与导入、线上行为统计、距离与正样本比例、时间与折扣分析 | [模块说明](bigdata-project3/README.md)、[HiveQL 脚本](bigdata-project3/scripts/)、[容器配置](bigdata-project3/docker-compose.yml) | [实验报告与问题记录](bigdata-project3/实验报告.md)、[查询截图](bigdata-project3/pictures/) |
-| Spark | RDD 聚合、SQL 透视与排序、MLlib 二分类预测 | [模块说明](bigdata-project4/README.md)、[Python 源码](bigdata-project4/src/) | [实验报告](bigdata-project4/实验报告.md)、[统计与预测输出](bigdata-project4/output/)、[运行截图](bigdata-project4/pictures/) |
+| Hive | 数据建表与导入、线上行为统计、距离与正样本比例、时间与折扣分析 | [模块说明](bigdata-project3/README.md)、[HiveQL 脚本](bigdata-project3/scripts/)、[容器配置](bigdata-project3/docker-compose.yml) | [实验报告与问题记录](bigdata-project3/实验报告.md)；原始截图仅本地留存 |
+| Spark | RDD 聚合、SQL 透视与排序、MLlib 二分类预测 | [模块说明](bigdata-project4/README.md)、[Python 源码](bigdata-project4/src/) | [实验报告](bigdata-project4/实验报告.md)、[汇总输出](bigdata-project4/output/)、[运行截图](bigdata-project4/pictures/) |
 
 ## 实现要点
 
@@ -22,23 +22,23 @@
 
 ## 结果与数据口径
 
-仓库保留了历史实验的报告、图表及部分输出文件。以下规模来自原有实验文档，原始数据未随仓库提供；复现时应以实际输入文件及查询计数为准。
+公开版保留课程代码、Markdown 报告、商家/优惠券维度的汇总统计和安全图表。原始 CSV、逐用户预测、源明细预览截图、学生身份 PDF 和含个人账户界面的截图不随 Git 跟踪；移出的历史文件仍留存本地。汇总数据包含商家/优惠券编码及计数、均值或比例，不包含逐用户领取或消费记录。以下规模来自原有实验文档；复现时应以实际输入文件及查询计数为准。
 
 | 模块 | 原有文档记载 | 来源 |
 | --- | --- | --- |
 | Hadoop WordCount | 6,090 条输入记录，输入文件约 472 KB | [实验报告](bigdata-homework5/README.md) |
 | MapReduce | 75 万余条记录、约 43 MB；结果涉及 8,018 个商家、5,462 个优惠券 | [模块说明](bigdata-project2/README.md)、[结果汇总](bigdata-project2/RESULTS_SUMMARY.md) |
 | Hive | 线下数据 1,048,575 条；另导入线上数据 | [实验报告](bigdata-project3/实验报告.md) |
-| Spark | 使用线上、线下训练数据及线下测试数据；保留统计结果与预测文件 | [数据准备说明](bigdata-project4/README.md)、[任务输出](bigdata-project4/output/) |
+| Spark | 使用线上、线下训练数据及线下测试数据；公开版保留汇总结果，逐用户预测仅本地生成 | [数据准备说明](bigdata-project4/README.md)、[任务输出](bigdata-project4/output/) |
 
-可直接查看的成果包括 [MapReduce 商家消费分类图](bigdata-project2/output/task1_visualization.png)、[核销间隔图](bigdata-project2/output/task3_visualization.png)、[Hive 数据计数截图](bigdata-project3/pictures/task1_offline_count.png)、[Spark 时间分布截图](bigdata-project4/pictures/task2_1_coupon_time_dist.png)和 [MLlib 预测截图](bigdata-project4/pictures/task3_prediction_results.png)。
+可直接查看 [MapReduce 商家消费分类图](bigdata-project2/output/task1_visualization.png)、[核销间隔图](bigdata-project2/output/task3_visualization.png)、[Hive 实验报告](bigdata-project3/实验报告.md)和 [Spark 时间分布截图](bigdata-project4/pictures/task2_1_coupon_time_dist.png)。MLlib 预测流程见[模型代码](bigdata-project4/src/task3_mllib.py)，逐用户结果在本地生成。
 
 ### 运行模式与模型现状
 
 - Hadoop WordCount 的实验报告记录的是单机伪分布式 HDFS / YARN；目录内同时保留[本地模式脚本](bigdata-homework5/run.sh)。
 - MapReduce 的优惠券实验采用 Hadoop 本地执行模式；Hive SQL 也配置了本地执行模式。Docker 多容器配置用于搭建实验服务，现有材料未提供多机集群的性能对比。
 - 三个 Spark 任务均使用 `local[*]`。MLlib 示例在训练数据上拟合后对测试数据预测，当前代码没有划分验证集，也没有计算 AUC 等模型评估指标。
-- 图表展示的是样本内的描述性统计；预测文件和运行截图记录的是流程输出，模型效果仍需独立验证。
+- 图表展示的是样本内的描述性统计；本地生成的预测文件记录的是流程输出，模型效果仍需独立验证。
 
 ## 运行与复现
 
@@ -74,7 +74,7 @@ python3 -m pip install -r requirements.txt
 bash run.sh
 ```
 
-分步执行方式见 [Spark 说明](bigdata-project4/README.md)。目录内保留 [Dockerfile](bigdata-project4/Dockerfile)和[容器运行脚本](bigdata-project4/docker_run.sh)；该脚本依赖已有的 `spark-bigdata` 镜像及 `/home/kleene/workspace` 挂载路径，使用时需适配本机目录。
+分步执行方式见 [Spark 说明](bigdata-project4/README.md)。目录内保留 [Dockerfile](bigdata-project4/Dockerfile)和[容器运行脚本](bigdata-project4/docker_run.sh)；该脚本依赖已有的 `spark-bigdata` 镜像，默认挂载当前目录，也可通过 `WORKSPACE_DIR` 指定本地挂载目录。
 
 **Hive**：在 `bigdata-project3/` 启动 [Docker Compose 服务](bigdata-project3/docker-compose.yml)，准备好数据后连接 Beeline，创建 `coupon_analysis` 数据库，再按顺序执行 [导入](bigdata-project3/scripts/task1_import_data.sql)、[基础查询](bigdata-project3/scripts/task2_basic_query.sql)、[聚合分析](bigdata-project3/scripts/task3_aggregation.sql)和[复杂查询](bigdata-project3/scripts/task4_complex_query.sql)。Compose 将脚本目录挂载到容器 `/scripts/`；首次运行前先建库，因为导入脚本开头已包含 `USE coupon_analysis`。详细配置与排错见 [Hive 说明](bigdata-project3/README.md)和[实验报告](bigdata-project3/实验报告.md)。
 
@@ -86,7 +86,7 @@ bash run.sh
 | --- | --- |
 | Hadoop WordCount / MapReduce | 脚本与报告使用 Hadoop 3.4.0 |
 | Hive | Compose 使用 Hive 2.3.2；NameNode / DataNode 镜像标签为 Hadoop 3.2.1。历史实验报告记载 Hadoop 2.7.4，复现时以实际镜像为准 |
-| Hive Metastore | PostgreSQL，配置见 `docker-compose.yml` |
+| Hive Metastore | PostgreSQL，配置见 `docker-compose.yml`；`hadoop.env` 保留与教学镜像配套的本地示例配置，不含 API Token |
 | Spark | PySpark、NumPy；Dockerfile 基于 Python 3.9，安装 Java 运行环境 |
 | 可视化 | Python、matplotlib |
 
@@ -103,11 +103,10 @@ Spark 的 [requirements.txt](bigdata-project4/requirements.txt)没有锁定依�
 │   └── logs/               # 距离、间隔、折扣与活跃度结果
 ├── bigdata-project3/        # Hive 环境、查询与报告
 │   ├── scripts/            # 四个 HiveQL 任务
-│   ├── pictures/           # 查询结果截图
 │   └── docker-compose.yml  # 服务编排
 └── bigdata-project4/        # Spark RDD / SQL / MLlib
     ├── src/                # 三个 Python 任务
-    ├── output/             # 统计与预测输出
+    ├── output/             # 公开汇总；逐用户预测仅本地生成
     ├── pictures/           # 运行截图
     └── run.sh              # 顺序执行入口
 ```

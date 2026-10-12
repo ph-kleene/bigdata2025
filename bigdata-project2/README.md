@@ -30,7 +30,7 @@
 docker start hadoop-project2
 
 # 2. 本地测试 (推荐)
-cd /home/kleene/workspace/bigdata-project2
+cd /path/to/workspace/bigdata-project2
 ./test_local.sh
 
 # 3. 生成可视化
@@ -186,6 +186,6 @@ bigdata-project2/
 
 ---
 
-**作者**: kleene  
+**作者**: [已移除个人标识]
 **技术栈**: Hadoop 3.4.0 | Python 3 | Docker | matplotlib  
 **实验类型**: 大数据MapReduce实验

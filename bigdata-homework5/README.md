@@ -17,7 +17,7 @@ docker run -itd --name hadoop-homework5 \
   -p 9870:9870 \
   -p 8088:8088 \
   -p 19888:19888 \
-  -v /home/kleene/workspace/bigdata2025/bigdata-homework5:/homework \
+  -v /path/to/workspace/bigdata2025/bigdata-homework5:/homework \
   newhadoop /bin/bash
 ```
 
@@ -146,7 +146,7 @@ docker exec hadoop-homework5 bash /homework/run_cluster.sh
   - 查看性能计数器
 
 **截图说明**：
-- 实验截图保存在 `picture/` 目录下
+- 公开版保留 `picture/` 中的 Hadoop Web UI 截图；包含本机个人账户界面的终端截图仅留存本地
 - 截取了以下关键界面：
   - YARN ResourceManager 任务列表页面
   - HDFS NameNode 文件浏览器
